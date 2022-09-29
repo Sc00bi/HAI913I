@@ -19,9 +19,12 @@ import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationLocator;
+import org.eclipse.jdt.core.dom.TypeDeclaration;
 
 import visitors.MethodDeclarationVisitor;
 import visitors.MethodInvocationVisitor;
+import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
 public class Parser {
@@ -35,6 +38,9 @@ public class Parser {
 		final File folder = new File(projectSourcePath);
 		ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
 
+		// counters
+		int numberOfClasses = 0; // number of classes of the application
+
 		//
 		for (File fileEntry : javaFiles) {
 			String content = FileUtils.readFileToString(fileEntry);
@@ -43,15 +49,25 @@ public class Parser {
 			CompilationUnit parse = parse(content.toCharArray());
 
 			// print methods info
-			printMethodInfo(parse);
+			// printMethodInfo(parse);
 
 			// print variables info
-			printVariableInfo(parse);
+			// printVariableInfo(parse);
 
 			// print method invocations
-			printMethodInvocationInfo(parse);
+			// printMethodInvocationInfo(parse);
+
+			// adding the number of classes in the file to the number of classes of the
+			// application (Q1.1.1)
+			numberOfClasses += numberOfClasses(parse);
+
+			// number of lines
+			numberOfLines(parse);
 
 		}
+
+		// print application number of classes (TD : Q.1.1.1)
+		System.out.println("Le nombre de classes de l'application : " + numberOfClasses);
 	}
 
 	// read all java files from specific folder
@@ -135,5 +151,56 @@ public class Parser {
 			}
 
 		}
+	}
+
+	// returns the number of Classes of d'un fichier .java (Q 1.1.1)
+	public static int numberOfClasses(CompilationUnit parse) {
+
+		TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor();
+		parse.accept(typeVisitor);
+		int res = 0;
+
+		for (TypeDeclaration typeDeclaration : typeVisitor.getTypeDeclarationList()) {
+			if (!typeDeclaration.isInterface()) {
+				res++;
+			}
+		}
+
+		return res;
+	}
+
+	// Eclipse JDT : get start position pour le point de début d'une classe,
+	// et getLineNumber() à partir de la start position pour obtenir le nombre de
+	// lignes,
+	// sur chaque éléments : on peut obtenir le nb de lignes de chq méthode
+
+	// returns the number of lines of the application (Q 1.1.2)
+	public static int numberOfLines(CompilationUnit parse) {
+		TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor();
+		parse.accept(typeVisitor);
+		int numberOfLines = 0;
+
+		for (TypeDeclaration typeDeclaration : typeVisitor.getTypeDeclarationList()) {
+			System.out.println(typeDeclaration.getName() + ", Lenght : " + typeDeclaration.getLength()
+					+ ", StartPosition : " + typeDeclaration.getStartPosition() + ", NodeType : "
+					+ typeDeclaration.getStartPosition());
+			System.out.println("Parent.startPosition : " + typeDeclaration.getParent().getStartPosition()
+					+ ", Parent.getLength : " + typeDeclaration.getParent().getLength() + ", NodeType : "
+					+ typeDeclaration.getStartPosition());
+			System.out.println("Root.startPosition : " + typeDeclaration.getRoot().getStartPosition()
+					+ ", Root.getLength : " + typeDeclaration.getRoot().getLength() + ", NodeType : "
+					+ typeDeclaration.getStartPosition());
+			// System.out.println( typeDeclaration.getLength() +
+			// typeDeclaration.getRoot().getStartPosition());
+			// System.out.println(typeDeclaration.getLength() + " " +
+			// typeDeclaration.getStartPosition());
+			for (MethodDeclaration md : typeDeclaration.getMethods()) {
+				System.out.println(md.getLength());
+				System.out.println(md.getStartPosition());
+			}
+			
+			// typeVisitor.
+		}
+		return 0;
 	}
 }
