@@ -3,6 +3,7 @@ package part2;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map;
 
 import org.apache.commons.io.FileUtils;
@@ -28,7 +29,7 @@ import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
 public class Parser {
-	public static final String projectPath = "C:\\Users\\Scooby\\Documents\\Master\\913\\hotelServiceIbis\\hotelServiceIbis";
+	public static final String projectPath = "C:\\Users\\Scooby\\Documents\\Master\\913\\ProjetTest";
 	public static final String projectSourcePath = projectPath + "\\src";
 	public static final String jrePath = "C:\\Program Files\\Java\\jre1.8.0_291\\lib\\rt.jar";
 
@@ -40,6 +41,11 @@ public class Parser {
 
 		// counters
 		int numberOfClasses = 0; // number of classes of the application
+		int numberOfLines = 0; // number of Lines of the application
+		int numberOfMethods = 0; // number of methods of the application
+		
+		// sets
+		HashSet<String> packageDeclarations = new HashSet<>();
 
 		//
 		for (File fileEntry : javaFiles) {
@@ -59,15 +65,25 @@ public class Parser {
 
 			// adding the number of classes in the file to the number of classes of the
 			// application (Q1.1.1)
-			numberOfClasses += numberOfClasses(parse);
+			numberOfClasses += StaticAnalysis.numberOfClasses(parse);
 
-			// number of lines
-			numberOfLines(parse);
+			// number of lines (Q1.1.2)
+			numberOfLines += StaticAnalysis.numberOfLines(parse);
+			
+			// number of methods (Q1.1.3)
+			numberOfMethods += StaticAnalysis.numberOfMethods(parse);
+			
+			// adding the packages declarations (Q1.1.4)
+			packageDeclarations.addAll(StaticAnalysis.packagesDeclarations(parse));
 
 		}
-
-		// print application number of classes (TD : Q.1.1.1)
+		
+		// print the results
+		System.out.println("Le nombre de lignes de code total est : " + numberOfLines);
 		System.out.println("Le nombre de classes de l'application : " + numberOfClasses);
+		System.out.println("Le nombre de méthodes de l'application : " + numberOfMethods);
+		System.out.println("Le nombre de déclaration de package : " + packageDeclarations.size());
+		System.out.println("Le nombre moyen de méthodes par classe : " + numberOfMethods/numberOfClasses);
 	}
 
 	// read all java files from specific folder
@@ -105,102 +121,5 @@ public class Parser {
 		parser.setSource(classSource);
 
 		return (CompilationUnit) parser.createAST(null); // create and parse
-	}
-
-	// navigate method information
-	public static void printMethodInfo(CompilationUnit parse) {
-		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
-		parse.accept(visitor);
-
-		for (MethodDeclaration method : visitor.getMethodDeclarationList()) {
-			System.out.println("Method name: " + method.getName() + " Return type: " + method.getReturnType2());
-		}
-
-	}
-
-	// navigate variables inside method
-	public static void printVariableInfo(CompilationUnit parse) {
-
-		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
-		parse.accept(visitor1);
-		for (MethodDeclaration method : visitor1.getMethodDeclarationList()) {
-
-			VariableDeclarationFragmentVisitor visitor2 = new VariableDeclarationFragmentVisitor();
-			method.accept(visitor2);
-
-			for (VariableDeclarationFragment variableDeclarationFragment : visitor2.getVariables()) {
-				System.out.println("variable name: " + variableDeclarationFragment.getName() + " variable Initializer: "
-						+ variableDeclarationFragment.getInitializer());
-			}
-
-		}
-	}
-
-	// navigate method invocations inside method
-	public static void printMethodInvocationInfo(CompilationUnit parse) {
-
-		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
-		parse.accept(visitor1);
-		for (MethodDeclaration method : visitor1.getMethodDeclarationList()) {
-
-			MethodInvocationVisitor visitor2 = new MethodInvocationVisitor();
-			method.accept(visitor2);
-
-			for (MethodInvocation methodInvocation : visitor2.getMethods()) {
-				System.out.println("method " + method.getName() + " invoc method " + methodInvocation.getName());
-			}
-
-		}
-	}
-
-	// returns the number of Classes of d'un fichier .java (Q 1.1.1)
-	public static int numberOfClasses(CompilationUnit parse) {
-
-		TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor();
-		parse.accept(typeVisitor);
-		int res = 0;
-
-		for (TypeDeclaration typeDeclaration : typeVisitor.getTypeDeclarationList()) {
-			if (!typeDeclaration.isInterface()) {
-				res++;
-			}
-		}
-
-		return res;
-	}
-
-	// Eclipse JDT : get start position pour le point de début d'une classe,
-	// et getLineNumber() à partir de la start position pour obtenir le nombre de
-	// lignes,
-	// sur chaque éléments : on peut obtenir le nb de lignes de chq méthode
-
-	// returns the number of lines of the application (Q 1.1.2)
-	public static int numberOfLines(CompilationUnit parse) {
-		TypeDeclarationVisitor typeVisitor = new TypeDeclarationVisitor();
-		parse.accept(typeVisitor);
-		int numberOfLines = 0;
-
-		for (TypeDeclaration typeDeclaration : typeVisitor.getTypeDeclarationList()) {
-			System.out.println(typeDeclaration.getName() + ", Lenght : " + typeDeclaration.getLength()
-					+ ", StartPosition : " + typeDeclaration.getStartPosition() + ", NodeType : "
-					+ typeDeclaration.getStartPosition());
-			System.out.println("Parent.startPosition : " + typeDeclaration.getParent().getStartPosition()
-					+ ", Parent.getLength : " + typeDeclaration.getParent().getLength() + ", NodeType : "
-					+ typeDeclaration.getStartPosition());
-			System.out.println("Root.startPosition : " + typeDeclaration.getRoot().getStartPosition()
-					+ ", Root.getLength : " + typeDeclaration.getRoot().getLength() + ", NodeType : "
-					+ typeDeclaration.getStartPosition());
-			// System.out.println( typeDeclaration.getLength() +
-			// typeDeclaration.getRoot().getStartPosition());
-			// System.out.println(typeDeclaration.getLength() + " " +
-			// typeDeclaration.getStartPosition());
-			for (MethodDeclaration md : typeDeclaration.getMethods()) {
-				System.out.println(md.getLength());
-				System.out.println(md.getStartPosition());
-			}
-			
-			// typeVisitor.
-		}
-		return 0;
 	}
 }
