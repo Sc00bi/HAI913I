@@ -31,7 +31,7 @@ import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
 public class StaticAnalysis {
-	private static int numberOfClassesCounter, numberOfMethodsCounter, numberOfAttributesCounter, numberOfLinesCounter;
+	private static int numberOfClassesCounter, numberOfMethodsCounter, numberOfAttributesCounter, numberOfLinesCounter, linesInMethodsCounter;
 	
 	private static Map<String, Integer> classesNumberOfMethodsCollector = new HashMap<>();
 	private static Map<String, Integer> classesNumberOfAttributesCollector = new HashMap<>();
@@ -42,6 +42,7 @@ public class StaticAnalysis {
 		numberOfMethodsCounter += numberOfMethods(parse);
 		numberOfAttributesCounter += numberOfAttributes(parse);
 		numberOfLinesCounter += numberOfLines(parse);
+		linesInMethodsCounter += linesInMethod(parse);
 		
 		classesNumberOfAttributesCollector.putAll(classesNumberOfAttributes(parse));
 		classesNumberOfMethodsCollector.putAll(classesNumberOfMethods(parse));
@@ -156,6 +157,23 @@ public class StaticAnalysis {
 
 		return res;
 	}
+	
+	// returns a map of methods with their lines of code (Q 1.1.12)
+	public static Map<String, Integer> methodsNumberOfAttributes(CompilationUnit parse)
+	{
+		HashMap<String, Integer> res = new HashMap<>();
+		TypeDeclarationVisitor typeDeclarationVisitor = new TypeDeclarationVisitor();
+		parse.accept(typeDeclarationVisitor);
+
+		for (TypeDeclaration typeDeclaration : typeDeclarationVisitor.getTypeDeclarationList()) {
+			for (MethodDeclaration md : typeDeclaration.getMethods()) {
+				
+				res.put(md.getName().toString(),  parse.getLineNumber(md.getLength()) - parse.getLineNumber(md.getRoot().getStartPosition()));
+			}
+		}
+
+		return res;
+	}
 
 	// returns a map of the 10% classes associated to the higher value (Q1.1.8,
 	// 1.1.9, 1.1.12)
@@ -171,7 +189,6 @@ public class StaticAnalysis {
 	public static void empty() {
 		numberOfClassesCounter = 0;
 		classesNumberOfMethodsCollector.clear();
-
 	}
 
 	// navigate variables inside method
@@ -253,6 +270,11 @@ public class StaticAnalysis {
 	public static double averageNumberOfMethods() {
 		return ((double) numberOfMethodsCounter) / ((double) numberOfClassesCounter);
 	}
+	
+	// answers Q6
+	public static double averageNumberOfLinesByMethods() {
+		return ((double) linesInMethodsCounter) / ((double) numberOfMethodsCounter);
+	}
 
 	// answers Q7
 	public static double averageAttributesNumber() {
@@ -297,5 +319,10 @@ public class StaticAnalysis {
 			}
 		}
 		return res;
+	}
+	
+	public static Map<String, HashMap<String, Integer>> methodsTopTen()
+	{
+		
 	}
 }

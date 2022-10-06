@@ -50,6 +50,7 @@ public class CLIExercice1 {
 				printQuestion5();
 				break;
 			case 6:
+				printQuestion6();
 				break;
 			case 7:
 				printQuestion7();
@@ -85,21 +86,24 @@ public class CLIExercice1 {
 
 	// print menu options
 	public static void printQuestionsMenu() {
-		System.out.println("1  - Le nombre de classes de l'application.");
-		System.out.println("2  - Le nombre de lignes de code de l'application.");
-		System.out.println("3  - Le nombre de méthodes de l'application.");
-		System.out.println("4  - Le nombre total de packages de l'application.");
-		System.out.println("5  - Le nombre moyen de méthodes par classes.");
-		System.out.println("6  - Le nombre moyen de ligne de code par méthode.");
-		System.out.println("7  - Le nombre moyen d'attributs par classe.");
-		System.out.println("8  - Les 10% des classes qui possèdent le plus de méthode.");
-		System.out.println("9  - Les 10% des classes qui possèdent le plus d'attributs.");
-		System.out.println("10 - Les classes qui font partie en même temps des deux catégories précédentes.");
-		System.out.println("11 - Les classes qui possèdent plus de X méthodes.");
-		System.out.println(
-				"12 - Les 10% des méthodes qui possèdent le plus grand nombre de lignes de code pour chaque classe.");
-		System.out.println("13 - Le nombre maximal de paramètres par rapport à toutes les méthodes de l'application.");
-		System.out.println("0  - Autres Options (configuration, exit ...).");
+		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("1  - Le nombre de classes de l'application.\n");
+		stringBuilder.append("2  - Le nombre de lignes de code de l'application.\n");
+		stringBuilder.append("3  - Le nombre de méthodes de l'application.\n");
+		stringBuilder.append("4  - Le nombre total de packages de l'application.\n");
+		stringBuilder.append("5  - Le nombre moyen de méthodes par classes.\n");
+		stringBuilder.append("6  - Le nombre moyen de ligne de code par méthode.\n");
+		stringBuilder.append("7  - Le nombre moyen d'attributs par classe.\n");
+		stringBuilder.append("8  - Les 10% des classes qui possèdent le plus de méthode.\n");
+		stringBuilder.append("9  - Les 10% des classes qui possèdent le plus d'attributs.\n");
+		stringBuilder.append("10 - Les classes qui font partie en même temps des deux catégories précédentes.\n");
+		stringBuilder.append("11 - Les classes qui possèdent plus de X méthodes.\n");
+		stringBuilder.append(
+				"12 - Les 10% des méthodes qui possèdent le plus grand nombre de lignes de code pour chaque classe.\n");
+		stringBuilder.append("13 - Le nombre maximal de paramètres par rapport à toutes les méthodes de l'application.\n");
+		stringBuilder.append("0  - Autres Options (configuration, exit ...).\n");
+		
+		System.out.println(stringBuilder.toString());
 	}
 
 	// print introduction
@@ -140,7 +144,7 @@ public class CLIExercice1 {
 
 	// print question 2 answer
 	public static void printQuestion2() {
-		System.out.println("Le nombre de lignes de l'application est : " + StaticAnalysis.getTotalNumberOfLinesCounter());
+		System.out.println("En utilisant le \"LinesVistor\", le nombre de lignes de l'application est : " + StaticAnalysis.getTotalNumberOfLinesCounter());
 	}
 
 	// print question 3 answer
@@ -168,7 +172,7 @@ public class CLIExercice1 {
 
 	// print question 6 answer
 	public static void printQuestion6() {
-
+		System.out.println("Le nombre moyen de lignes par méthodes est : " + df.format(StaticAnalysis.averageAttributesNumber()));
 	}
 
 	// print question 7 answer

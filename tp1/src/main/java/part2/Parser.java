@@ -32,17 +32,6 @@ import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
 /*
- * 1 nombre de classes
- * 2 nombre de lignes
- * 3 nombres de méthodes total
- * 4 nombre total de paquets
- * 5 nombre moyen de methodes par classes
- * 6  nombre moyen de ligne de code par méthode
- * 7 nombre moyen d'attribut par classe - FAUT PEUT ETRE LES METTRE EN DOUBLE
- * 8 10% des classes qui ont le plus grand nombre de méthodes
- * 9 10% des classes le plus gd nombre d'attributs
- * 10 classes dans les deux catégories précédentes
- * 11classes possèdent plus de X méthodes
  * 12 10% des méthode qui possedent le plus de ligne de code pour chaque classe
  * 13 nombre maximal de paramètres par rapport à toutes les méthodes de l'application
  */
