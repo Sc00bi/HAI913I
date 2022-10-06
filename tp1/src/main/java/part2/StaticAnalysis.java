@@ -31,7 +31,8 @@ import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
 public class StaticAnalysis {
-	private static int numberOfClassesCounter, numberOfMethodsCounter, numberOfAttributesCounter;
+	private static int numberOfClassesCounter, numberOfMethodsCounter, numberOfAttributesCounter, numberOfLinesCounter;
+	
 	private static Map<String, Integer> classesNumberOfMethodsCollector = new HashMap<>();
 	private static Map<String, Integer> classesNumberOfAttributesCollector = new HashMap<>();
 	private static Set<String> packagesNamesDeclaration = new HashSet<>();
@@ -40,6 +41,7 @@ public class StaticAnalysis {
 		numberOfClassesCounter += numberOfClasses(parse);
 		numberOfMethodsCounter += numberOfMethods(parse);
 		numberOfAttributesCounter += numberOfAttributes(parse);
+		numberOfLinesCounter += numberOfLines(parse);
 		
 		classesNumberOfAttributesCollector.putAll(classesNumberOfAttributes(parse));
 		classesNumberOfMethodsCollector.putAll(classesNumberOfMethods(parse));
@@ -219,6 +221,12 @@ public class StaticAnalysis {
 	// answers Q1
 	public static int getNumberOfClassesCounter() {
 		return numberOfClassesCounter;
+	}
+	
+	// answers Q2
+	public static int getTotalNumberOfLinesCounter()
+	{
+		return numberOfLinesCounter;
 	}
 
 	// answers Q3

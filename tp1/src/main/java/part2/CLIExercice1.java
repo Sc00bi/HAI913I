@@ -37,6 +37,7 @@ public class CLIExercice1 {
 				printQuestion1();
 				break;
 			case 2:
+				printQuestion2();
 				break;
 			case 3:
 				printQuestion3FromVisitor();
@@ -139,7 +140,7 @@ public class CLIExercice1 {
 
 	// print question 2 answer
 	public static void printQuestion2() {
-
+		System.out.println("Le nombre de lignes de l'application est : " + StaticAnalysis.getTotalNumberOfLinesCounter());
 	}
 
 	// print question 3 answer
