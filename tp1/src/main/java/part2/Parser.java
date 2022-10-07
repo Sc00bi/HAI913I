@@ -32,7 +32,6 @@ import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
 /*
- * 12 10% des méthode qui possedent le plus de ligne de code pour chaque classe
  * 13 nombre maximal de paramètres par rapport à toutes les méthodes de l'application
  */
 public class Parser {
@@ -104,84 +103,5 @@ public class Parser {
 	public static void displayMapMethodInteger(Map<MethodDeclaration, Integer> map) {
 		map.entrySet().stream().forEach(
 				x -> System.out.println("( METHOD ) : " + x.getKey().getName() + "\t\t" + "( " + x.getValue() + " )"));
-	}
-	
-	public static void main(String[] args) throws IOException {
-
-		// read java files
-		final File folder = new File(projectSourcePath);
-		ArrayList<File> javaFiles = listJavaFilesForFolder(folder);
-
-		// counters
-		int numberOfClasses = 0; // number of classes of the application
-		int numberOfLines = 0; // number of Lines of the application
-		int numberOfMethods = 0; // number of methods of the application
-		int numberOfLinesInMethods = 0; // number of methods of the application written in a method
-		int numberOfAttributes = 0; // number of attributes of the application
-		
-		// sets
-		Set<String> packageDeclarations = new HashSet<>();
-		
-		// 
-		Map<String, Integer> classesNumberOfMethods = new HashMap<>();	
-		Map<String, Integer> classesNumberOfAttributes = new HashMap<>();	
-
-		//
-		for (File fileEntry : javaFiles) {
-			String content = FileUtils.readFileToString(fileEntry);
-			// System.out.println(content);
-
-			CompilationUnit parse = parse(content.toCharArray());
-
-			// print methods info
-			// printMethodInfo(parse);
-
-			// print variables info
-			// printVariableInfo(parse);
-
-			// print method invocations
-			// printMethodInvocationInfo(parse);
-
-			// adding the number of classes in the file to the number of classes of the
-			// application (Q1.1.1)
-			numberOfClasses += StaticAnalysis.numberOfClasses(parse);
-
-			// number of lines (Q1.1.2)
-			numberOfLines += StaticAnalysis.numberOfLines(parse);
-			
-			// number of methods (Q1.1.3)
-			numberOfMethods += StaticAnalysis.numberOfMethods(parse);
-			
-			// adding the packages declarations (Q1.1.4)
-			packageDeclarations.addAll(StaticAnalysis.packagesDeclarations(parse));
-			
-			// number of lines for each methods (Q1.1.6)
-			numberOfLinesInMethods += StaticAnalysis.linesInMethod(parse);
-			
-			// number of attributes for each file (Q1.1.7)
-			numberOfAttributes += StaticAnalysis.numberOfAttributes(parse);
-			
-			// number of methods associated to a class name (Q1.1.8)
-			classesNumberOfMethods.putAll(StaticAnalysis.classesNumberOfMethods(parse));
-			
-			// 1.1.9
-			classesNumberOfAttributes.putAll(StaticAnalysis.classesNumberOfAttributes(parse));
-			
-		}
-		// 
-		classesNumberOfMethods = StaticAnalysis.getTenPourcentsClasses(classesNumberOfMethods, numberOfClasses);
-		classesNumberOfAttributes = StaticAnalysis.getTenPourcentsClasses(classesNumberOfAttributes, numberOfClasses);
-		
-		// print the results
-		System.out.println("Le nombre de lignes de code total est : " + numberOfLines);
-		System.out.println("Le nombre de classes de l'application : " + numberOfClasses);
-		System.out.println("Le nombre de méthodes de l'application : " + numberOfMethods);
-		System.out.println("Le nombre de déclaration de package : " + packageDeclarations.size());
-		System.out.println("Le nombre moyen de méthodes par classe : " + numberOfMethods/numberOfClasses);
-		System.out.println("Le nombre moyen de ligne de code par méthode :"  + numberOfLinesInMethods/numberOfMethods);
-		System.out.println("Le nombre moyen d'attributs par classe : " + numberOfAttributes/numberOfClasses);
-		System.out.println("Les 10% de classes contenant le plus de méthodes sont : " + classesNumberOfMethods.keySet());
-		System.out.println("Les 10% de classes contenant le plus d'attributs sont : " + classesNumberOfAttributes.keySet());
-		
 	}
 }
