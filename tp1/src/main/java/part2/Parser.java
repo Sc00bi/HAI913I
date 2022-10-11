@@ -3,33 +3,14 @@ package part2;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
 
 import org.apache.commons.io.FileUtils;
-import org.eclipse.core.internal.utils.FileUtil;
-import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IWorkspaceRoot;
-import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jdt.core.ICompilationUnit;
 import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.dom.AST;
 import org.eclipse.jdt.core.dom.ASTParser;
 import org.eclipse.jdt.core.dom.CompilationUnit;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
-import org.eclipse.jdt.core.dom.MethodInvocation;
-import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.eclipse.jdt.internal.core.search.matching.TypeDeclarationLocator;
-import org.eclipse.jdt.core.dom.TypeDeclaration;
-
-import visitors.MethodDeclarationVisitor;
-import visitors.MethodInvocationVisitor;
-import visitors.TypeDeclarationVisitor;
-import visitors.VariableDeclarationFragmentVisitor;
 
 /*
  * 13 nombre maximal de paramètres par rapport à toutes les méthodes de l'application
@@ -55,14 +36,13 @@ public class Parser {
 			// System.out.println(content);
 
 			CompilationUnit parse = parse(content.toCharArray());
-			
-			// collecting data on the file parsed 
+
+			// collecting data on the file parsed
 			StaticAnalysis.analyse(parse);
 		}
-		
-		
+
 	}
-	
+
 	// read all java files from specific folder
 	public static ArrayList<File> listJavaFilesForFolder(final File folder) {
 		ArrayList<File> javaFiles = new ArrayList<File>();
@@ -74,7 +54,6 @@ public class Parser {
 				javaFiles.add(fileEntry);
 			}
 		}
-
 		return javaFiles;
 	}
 

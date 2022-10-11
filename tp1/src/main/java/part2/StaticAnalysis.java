@@ -1,29 +1,19 @@
 package part2;
 
-import java.io.File;
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
-import java.util.Map.Entry;
 
-import org.apache.commons.io.FileUtils;
 import org.eclipse.jdt.core.dom.CompilationUnit;
-import org.eclipse.jdt.core.dom.FieldDeclaration;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
 
-import visitors.AttributeVisitor;
 import visitors.LinesVisitor;
 import visitors.MethodDeclarationVisitor;
 import visitors.MethodInvocationVisitor;
@@ -55,6 +45,8 @@ public class StaticAnalysis {
 		methodsNumberOfParameters.putAll(getEveryMethodsNumberOfAttributes(parse));
 
 		packagesNamesDeclaration.addAll(packagesDeclarations(parse));
+		
+		printMethodInvocationInfo(parse);
 	}
 
 	// collects the number of Classes of a .java file (Q 1.1.1)
@@ -166,6 +158,7 @@ public class StaticAnalysis {
 	}
 
 	// returns a map of methods with their lines of code (Q 1.1.12)
+	@SuppressWarnings("unused")
 	private static Map<MethodDeclaration, Integer> methodsNumberOfAttributes(CompilationUnit parse) {
 		HashMap<MethodDeclaration, Integer> res = new HashMap<>();
 		TypeDeclarationVisitor typeDeclarationVisitor = new TypeDeclarationVisitor();
@@ -245,6 +238,7 @@ public class StaticAnalysis {
 	}
 
 	// navigate variables inside method
+	@SuppressWarnings("unused")
 	private static void printVariableInfo(CompilationUnit parse) {
 
 		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
@@ -262,6 +256,7 @@ public class StaticAnalysis {
 	}
 
 	// navigate method invocations inside method
+	@SuppressWarnings("unused")
 	private static void printMethodInvocationInfo(CompilationUnit parse) {
 
 		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
@@ -278,6 +273,7 @@ public class StaticAnalysis {
 	}
 
 	// navigate method information
+	@SuppressWarnings("unused")
 	private static void printMethodInfo(CompilationUnit parse) {
 		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
 		parse.accept(visitor);

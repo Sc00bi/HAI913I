@@ -1,6 +1,5 @@
 package part2;
 
-import java.awt.Window.Type;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
