@@ -48,8 +48,6 @@ public class StaticAnalysis {
 		
 		printMethodInvocationInfo(parse);
 	}
-	
-	
 
 	// collects the number of Classes of a .java file (Q 1.1.1)
 	private static int numberOfClasses(CompilationUnit parse) {
