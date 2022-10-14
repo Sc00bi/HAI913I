@@ -38,7 +38,7 @@ public class Parser {
 			CompilationUnit parse = parse(content.toCharArray());
 
 			// collecting data on the file parsed
-			StaticAnalysis.analyse(parse);
+			StaticAnalysis.analyze(parse);
 		}
 
 	}

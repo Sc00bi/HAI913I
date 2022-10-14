@@ -10,7 +10,7 @@ import java.util.Scanner;
 import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 
-public class CLIExercice1 {
+public class SimpleCLI {
 	public final static DecimalFormat df = new DecimalFormat("0.00"); // import java.text.DecimalFormat;
 	public static String projectPath = "C:\\Users\\Scooby\\Documents\\Master\\913\\ProjetTest";
 	public static String projectSourcePath = projectPath + "\\src";

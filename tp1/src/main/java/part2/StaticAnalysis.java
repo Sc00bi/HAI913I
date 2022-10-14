@@ -13,6 +13,9 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
+import org.jgrapht.Graph;
+import org.jgrapht.graph.DefaultEdge;
+import org.jgrapht.graph.SimpleDirectedGraph;
 
 import visitors.LinesVisitor;
 import visitors.MethodDeclarationVisitor;
@@ -21,18 +24,28 @@ import visitors.PackageVisitor;
 import visitors.TypeDeclarationVisitor;
 import visitors.VariableDeclarationFragmentVisitor;
 
+// Class that provides methods to calculate informations about an OO application
 public class StaticAnalysis {
+	/* ATTRIBUTES */
+	// counters
 	private static int numberOfClassesCounter, numberOfMethodsCounter, numberOfAttributesCounter, numberOfLinesCounter,
 			linesInMethodsCounter;
-
+	// maps
 	private static Map<TypeDeclaration, Integer> classesNumberOfMethodsCollector = new HashMap<>();
 	private static Map<TypeDeclaration, Integer> classesNumberOfAttributesCollector = new HashMap<>();
 	private static Map<TypeDeclaration, Map<MethodDeclaration, Integer>> classesMethodsNumberOfLinesCollector = new HashMap<>();
 	private static Map<MethodDeclaration, Integer> methodsNumberOfParameters = new HashMap<>();
-
+	// set
 	private static Set<String> packagesNamesDeclaration = new HashSet<>();
+	// graph
+	private static SimpleDirectedGraph<String, DefaultEdge> callGraph = new SimpleDirectedGraph<>(DefaultEdge.class);
 
-	public static void analyse(CompilationUnit parse) {
+	public StaticAnalysis() {
+		this.callGraph = new SimpleDirectedGraph<>(DefaultEdge.class);
+	}
+
+	// execute the analysis of a .java file and stocks every informations needed
+	public static void analyze(CompilationUnit parse) {
 		numberOfClassesCounter += numberOfClasses(parse);
 		numberOfMethodsCounter += numberOfMethods(parse);
 		numberOfAttributesCounter += numberOfAttributes(parse);
@@ -45,12 +58,18 @@ public class StaticAnalysis {
 		methodsNumberOfParameters.putAll(getEveryMethodsNumberOfAttributes(parse));
 
 		packagesNamesDeclaration.addAll(packagesDeclarations(parse));
-		
-		printMethodInvocationInfo(parse);
 	}
-	
-	
 
+	// empties the StaticAnalysis attributes
+	private static void empty() {
+		numberOfClassesCounter = 0;
+		classesNumberOfMethodsCollector.clear();
+	}
+
+	/*
+	 * This part of the code focuses on implanting methods to collect informations
+	 * about our application based on its code
+	 */
 	// collects the number of Classes of a .java file (Q 1.1.1)
 	private static int numberOfClasses(CompilationUnit parse) {
 
@@ -159,6 +178,16 @@ public class StaticAnalysis {
 		return res;
 	}
 
+	// returns a map of the 10% classes associated to the higher value (Q1.1.8,
+	// & 1.1.9)
+	private static Map<TypeDeclaration, Integer> getTenPourcentsClasses(Map<TypeDeclaration, Integer> map,
+			int numberOfClasses) {
+		long limit = (long) ((numberOfClasses) * 0.1);
+		limit = 0. == limit ? 1 : limit;
+		return map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(limit)
+				.collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
+	}
+
 	// returns a map of methods with their lines of code (Q 1.1.12)
 	@SuppressWarnings("unused")
 	private static Map<MethodDeclaration, Integer> methodsNumberOfAttributes(CompilationUnit parse) {
@@ -174,16 +203,6 @@ public class StaticAnalysis {
 		}
 
 		return res;
-	}
-
-	// returns a map of the 10% classes associated to the higher value (Q1.1.8,
-	// & 1.1.9)
-	private static Map<TypeDeclaration, Integer> getTenPourcentsClasses(Map<TypeDeclaration, Integer> map,
-			int numberOfClasses) {
-		long limit = (long) ((numberOfClasses) * 0.1);
-		limit = 0. == limit ? 1 : limit;
-		return map.entrySet().stream().sorted(Map.Entry.comparingByValue(Comparator.reverseOrder())).limit(limit)
-				.collect(Collectors.toMap(x -> x.getKey(), x -> x.getValue()));
 	}
 
 	// returns a map of the 10% methods associated to the higher value (Q1.1.12)
@@ -231,59 +250,6 @@ public class StaticAnalysis {
 		}
 
 		return res;
-	}
-
-	// empties the StaticAnalysis attributes
-	private static void empty() {
-		numberOfClassesCounter = 0;
-		classesNumberOfMethodsCollector.clear();
-	}
-
-	// navigate variables inside method
-	@SuppressWarnings("unused")
-	private static void printVariableInfo(CompilationUnit parse) {
-
-		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
-		parse.accept(visitor1);
-		for (MethodDeclaration method : visitor1.getMethodDeclarationList()) {
-
-			VariableDeclarationFragmentVisitor visitor2 = new VariableDeclarationFragmentVisitor();
-			method.accept(visitor2);
-
-			for (VariableDeclarationFragment variableDeclarationFragment : visitor2.getVariables()) {
-				System.out.println("variable name: " + variableDeclarationFragment.getName() + " variable Initializer: "
-						+ variableDeclarationFragment.getInitializer());
-			}
-		}
-	}
-
-	// navigate method invocations inside method
-	@SuppressWarnings("unused")
-	private static void printMethodInvocationInfo(CompilationUnit parse) {
-
-		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
-		parse.accept(visitor1);
-		for (MethodDeclaration method : visitor1.getMethodDeclarationList()) {
-
-			MethodInvocationVisitor visitor2 = new MethodInvocationVisitor();
-			method.accept(visitor2);
-
-			for (MethodInvocation methodInvocation : visitor2.getMethods()) {
-				System.out.println("method " + method.getName() + " invoc method " + methodInvocation.getName());
-			}
-		}
-	}
-
-	// navigate method information
-	@SuppressWarnings("unused")
-	private static void printMethodInfo(CompilationUnit parse) {
-		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
-		parse.accept(visitor);
-
-		for (MethodDeclaration method : visitor.getMethodDeclarationList()) {
-			System.out.println("Method name: " + method.getName() + " Return type: " + method.getReturnType2());
-		}
-
 	}
 
 	// answers Q1
@@ -375,21 +341,122 @@ public class StaticAnalysis {
 
 		return classesMethodsNumberOfLinesCollector;
 	}
-	
-	public static String maximumNumberOfParameters()
-	{
+
+	// answers Q13
+	public static String maximumNumberOfParameters() {
 		String res = "";
 		MethodDeclaration topMethod;
 		int max = 0;
-		for (MethodDeclaration md : methodsNumberOfParameters.keySet())
-		{
-			if (methodsNumberOfParameters.get(md) > max)
-			{
+		for (MethodDeclaration md : methodsNumberOfParameters.keySet()) {
+			if (methodsNumberOfParameters.get(md) > max) {
 				max = methodsNumberOfParameters.get(md);
 				topMethod = md;
 				res = topMethod.getName().toString() + " : " + max + "paramètres";
 			}
 		}
 		return "La méthode contenant le plus de paramètres est " + res;
+	}
+
+	/*
+	 * This part of the code focuses on providing methods meant to generate a call
+	 * graph based on the static analysis of our application
+	 */
+
+	// adds to the graph every method invocation represented as a vertex and links
+	// it with the method calling it
+	private static void addToGraph(CompilationUnit parse) {
+		TypeDeclarationVisitor typeDeclarationVisitor = new TypeDeclarationVisitor();
+		parse.accept(typeDeclarationVisitor);
+
+		for (TypeDeclaration typeDeclaration : typeDeclarationVisitor.getTypeDeclarationList()) {
+			for (MethodDeclaration methodDeclaration : typeDeclaration.getMethods()) {
+				methodDeclaration.resolveBinding();
+				MethodInvocationVisitor methodInvocationVisitor = new MethodInvocationVisitor();
+				methodDeclaration.accept(methodInvocationVisitor);
+
+				String methodCalling = typeDeclaration.getName().toString() + "::"
+						+ methodDeclaration.getName().toString() + "()";
+
+				for (MethodInvocation methodInvocation : methodInvocationVisitor.getMethods()) {
+
+					// verifying the method caller is not yet in the graph, else we add it
+					if (!callGraph.containsVertex(methodCalling)) {
+						callGraph.addVertex(methodCalling);
+					}
+					String methodCalled = "";
+
+					// if the expression is explicite
+					if (methodInvocation.getExpression() != null) {
+						if (methodInvocation.getExpression().resolveTypeBinding() != null) {
+							methodCalled = methodInvocation.getExpression().resolveTypeBinding().getName().toString()
+									+ "::" + methodInvocation.getName().toString() + "()";
+
+						}
+						// else, if
+					} else if (methodInvocation.resolveMethodBinding() != null) {
+
+						methodCalled = methodInvocation.resolveMethodBinding().getDeclaringClass().toString() + "::"
+								+ methodInvocation.getName().toString() + "()";
+						// if the called method is static
+					} else {
+						methodCalled = methodDeclaration.getName().toString() + "::"
+								+ methodInvocation.getName().toString() + "()";
+					}
+					callGraph.addVertex(methodCalled);
+					callGraph.addEdge(methodCalling, methodCalled);
+				}
+
+			}
+		}
+	}
+
+	/*
+	 * Methods provided by M.Rima and M.Seriai
+	 */
+	// navigate variables inside method
+	@SuppressWarnings("unused")
+	private static void printVariableInfo(CompilationUnit parse) {
+
+		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
+		parse.accept(visitor1);
+		for (MethodDeclaration method : visitor1.getMethodDeclarationList()) {
+
+			VariableDeclarationFragmentVisitor visitor2 = new VariableDeclarationFragmentVisitor();
+			method.accept(visitor2);
+
+			for (VariableDeclarationFragment variableDeclarationFragment : visitor2.getVariables()) {
+				System.out.println("variable name: " + variableDeclarationFragment.getName() + " variable Initializer: "
+						+ variableDeclarationFragment.getInitializer());
+			}
+		}
+	}
+
+	// navigate method invocations inside method
+	@SuppressWarnings("unused")
+	private static void printMethodInvocationInfo(CompilationUnit parse) {
+
+		MethodDeclarationVisitor visitor1 = new MethodDeclarationVisitor();
+		parse.accept(visitor1);
+		for (MethodDeclaration method : visitor1.getMethodDeclarationList()) {
+
+			MethodInvocationVisitor visitor2 = new MethodInvocationVisitor();
+			method.accept(visitor2);
+
+			for (MethodInvocation methodInvocation : visitor2.getMethods()) {
+				System.out.println("method " + method.getName() + " invoc method " + methodInvocation.getName());
+			}
+		}
+	}
+
+	// navigate method information
+	@SuppressWarnings("unused")
+	private static void printMethodInfo(CompilationUnit parse) {
+		MethodDeclarationVisitor visitor = new MethodDeclarationVisitor();
+		parse.accept(visitor);
+
+		for (MethodDeclaration method : visitor.getMethodDeclarationList()) {
+			System.out.println("Method name: " + method.getName() + " Return type: " + method.getReturnType2());
+		}
+
 	}
 }
