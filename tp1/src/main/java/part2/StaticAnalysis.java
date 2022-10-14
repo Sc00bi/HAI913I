@@ -1,5 +1,6 @@
 package part2;
 
+import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -13,7 +14,6 @@ import org.eclipse.jdt.core.dom.MethodDeclaration;
 import org.eclipse.jdt.core.dom.MethodInvocation;
 import org.eclipse.jdt.core.dom.TypeDeclaration;
 import org.eclipse.jdt.core.dom.VariableDeclarationFragment;
-import org.jgrapht.Graph;
 import org.jgrapht.graph.DefaultEdge;
 import org.jgrapht.graph.SimpleDirectedGraph;
 
@@ -58,6 +58,9 @@ public class StaticAnalysis {
 		methodsNumberOfParameters.putAll(getEveryMethodsNumberOfAttributes(parse));
 
 		packagesNamesDeclaration.addAll(packagesDeclarations(parse));
+
+		updateGraph(parse);
+
 	}
 
 	// empties the StaticAnalysis attributes
@@ -351,7 +354,7 @@ public class StaticAnalysis {
 			if (methodsNumberOfParameters.get(md) > max) {
 				max = methodsNumberOfParameters.get(md);
 				topMethod = md;
-				res = topMethod.getName().toString() + " : " + max + "paramètres";
+				res = topMethod.getName().toString() + " : " + max + " paramètre(s)";
 			}
 		}
 		return "La méthode contenant le plus de paramètres est " + res;
@@ -364,7 +367,7 @@ public class StaticAnalysis {
 
 	// adds to the graph every method invocation represented as a vertex and links
 	// it with the method calling it
-	private static void addToGraph(CompilationUnit parse) {
+	private static void updateGraph(CompilationUnit parse) {
 		TypeDeclarationVisitor typeDeclarationVisitor = new TypeDeclarationVisitor();
 		parse.accept(typeDeclarationVisitor);
 
@@ -402,12 +405,19 @@ public class StaticAnalysis {
 						methodCalled = methodDeclaration.getName().toString() + "::"
 								+ methodInvocation.getName().toString() + "()";
 					}
-					callGraph.addVertex(methodCalled);
-					callGraph.addEdge(methodCalling, methodCalled);
+					if (!methodCalled.equals("")) {
+						callGraph.addVertex(methodCalled);
+						callGraph.addEdge(methodCalling, methodCalled);
+					}
 				}
 
 			}
 		}
+	}
+
+	// answers Q2.1
+	public static SimpleDirectedGraph<String, DefaultEdge> getCallGraph() {
+		return callGraph;
 	}
 
 	/*

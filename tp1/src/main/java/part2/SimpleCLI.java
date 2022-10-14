@@ -17,10 +17,7 @@ public class SimpleCLI {
 	public static String jrePath = "C:\\Program Files\\Java\\jre1.8.0_291\\lib\\rt.jar";
 
 	public static void main(String[] args) throws IOException, InterruptedException {
-		String projectPath = "C:\\Users\\Scooby\\Documents\\Master\\913\\ProjetTest";
-		String projectSourcePath = projectPath + "\\src";
-		String jrePath = "C:\\Program Files\\Java\\jre1.8.0_291\\lib\\rt.jar";
-
+		
 		Scanner scanner = new Scanner(System.in);
 		boolean flagExit = false;
 		int option;
@@ -78,6 +75,8 @@ public class SimpleCLI {
 			case 13:
 				printQuestion13();
 				break;
+			case 14:
+				printQuestion14();
 			default:
 				System.out.println(option);
 				break;
@@ -92,6 +91,7 @@ public class SimpleCLI {
 	// print menu options
 	public static void printQuestionsMenu() {
 		StringBuilder stringBuilder = new StringBuilder();
+		stringBuilder.append("=== EXERCICE 1 ===\n");
 		stringBuilder.append("1  - Le nombre de classes de l'application.\n");
 		stringBuilder.append("2  - Le nombre de lignes de code de l'application.\n");
 		stringBuilder.append("3  - Le nombre de méthodes de l'application.\n");
@@ -107,7 +107,11 @@ public class SimpleCLI {
 				"12 - Les 10% des méthodes qui possèdent le plus grand nombre de lignes de code pour chaque classe.\n");
 		stringBuilder
 				.append("13 - Le nombre maximal de paramètres par rapport à toutes les méthodes de l'application.\n");
-		stringBuilder.append("0  - Autres Options (configuration, exit ...).\n");
+		stringBuilder.append("=== EXERCICE 2 ===\n");
+		stringBuilder.append("14 - Affichage du graphe d'appel de l'application en chaîne de caractères.\n");
+		//stringBuilder.append("15 - Où trouver mon graphe d'appel en .png ?");
+		stringBuilder.append("=== OPTIONS ===\n");
+		stringBuilder.append("0  - Quitter.\n");
 
 		System.out.println(stringBuilder.toString());
 	}
@@ -120,25 +124,21 @@ public class SimpleCLI {
 
 		System.out.println("Dans un premier temps, veuiller choisir un projet à analyser : ");
 		System.out.println("    1 - Analyser le projet par défaut fournit dans les ressources du projet.");
-		System.out.println("    2 - Analyser réflexivement ce projet");
-		System.out.println("    3 - Analyser un autre projet.");
+		System.out.println("    2 - Analyser un autre projet.");
 
 		Scanner scanner = new Scanner(System.in);
 		int option = scanner.nextInt();
 
 		switch (option) {
 		case 1:
-			projectPath = "C:\\Users\\Scooby\\Documents\\Master\\913\\ProjetTest";
-			projectSourcePath = projectPath + "\\src";
-			jrePath = "C:\\Program Files\\Java\\jre1.8.0_291\\lib\\rt.jar"; // temporaire : A SUPPRIMER
 			break;
 		case 2:
-			projectPath = "";
-			projectSourcePath = projectPath + "\\src";
-			break;
-		case 3:
-			projectPath = "";
-			projectSourcePath = projectPath + "\\src";
+			System.out.println("Entrez le projectPath de votre projet :");
+			projectPath = scanner.nextLine();
+			System.out.println("Entrez la position de la source au sein de ce projet :");
+			projectSourcePath = projectPath + scanner.nextLine();
+			System.out.println("Entrez le jrePath");
+			jrePath = scanner.nextLine();
 			break;
 		}
 	}
@@ -195,7 +195,7 @@ public class SimpleCLI {
 		HashMap<TypeDeclaration, Integer> top10 = (HashMap<TypeDeclaration, Integer>) StaticAnalysis
 				.top10PourcentClassesByMethods();
 		for (TypeDeclaration key : top10.keySet()) {
-			System.out.println("    Classe [" + key + "] : " + top10.get(key) + " méthodes");
+			System.out.println("    Classe [" + key.getName() + "] : " + top10.get(key) + " méthodes");
 		}
 	}
 
@@ -205,7 +205,7 @@ public class SimpleCLI {
 				.top10PourcentClassesByAttributes();
 		System.out.println("Les 10% des classes contenant le plus d'attributs sont : ");
 		for (TypeDeclaration key : top10.keySet()) {
-			System.out.println("    Classe [" + key + "] : " + top10.get(key) + " attributs");
+			System.out.println("    Classe [" + key.getName() + "] : " + top10.get(key) + " attributs");
 		}
 	}
 
@@ -219,7 +219,8 @@ public class SimpleCLI {
 					"Les classes faisant partie de l'intersection des 10% par nombre d'attributs et par nombre de méthodes sont : ");
 			for (TypeDeclaration key : top10) {
 				System.out.println("    Classe [" + key.getName() + "] : "
-						+ StaticAnalysis.top10PourcentClassesByAttributes().get(key) + " attributs et " + StaticAnalysis.top10PourcentClassesByMethods().get(key) + " méthodes" );
+						+ StaticAnalysis.top10PourcentClassesByAttributes().get(key) + " attributs et "
+						+ StaticAnalysis.top10PourcentClassesByMethods().get(key) + " méthodes");
 			}
 		}
 	}
@@ -254,5 +255,10 @@ public class SimpleCLI {
 	// print question 13 answer
 	public static void printQuestion13() {
 		System.out.println(StaticAnalysis.maximumNumberOfParameters());
+	}
+	
+	// print question 14 answer
+	public static void printQuestion14() {
+		System.out.println(StaticAnalysis.getCallGraph());
 	}
 }
